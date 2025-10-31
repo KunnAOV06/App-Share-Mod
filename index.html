@@ -88,7 +88,7 @@ input[type="text"]{background:transparent;border:1px solid rgba(255,255,255,0.06
   <div id="keyOverlay" class="overlay">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="keyTitle">
       <h4 id="keyTitle">Vui lòng nhập Key để truy cập</h4>
-      <div class="hint">Bạn cần một key để truy cập trang. Nhấn "Yêu cầu key" để lấy key tạm thời cho phiên này (one-time), hoặc nhập key nếu bạn đã có.</div>
+      <div class="hint">Bạn cần một key để truy cập trang. Nhấn "Yêu cầu key" để lấy key cho phiên này (one-time), hoặc nhập key nếu bạn đã có.</div>
 
       <div class="input-row" style="margin-top:12px">
         <input id="inputKey" type="text" placeholder="Nhập key (vd: AOV-XXXXXX)" />
@@ -102,11 +102,11 @@ input[type="text"]{background:transparent;border:1px solid rgba(255,255,255,0.06
       </div>
 
       <div style="margin-top:12px;text-align:center">
-        <div id="oneTimeInfo" class="hint">Chưa tạo key tạm thời.</div>
+        <div id="oneTimeInfo" class="hint">Chưa tạo key.</div>
       </div>
 
       <div style="margin-top:10px;text-align:right">
-        <div class="tiny">Nếu bạn là admin, nhập key admin để vào.</div>
+        <div class="tiny">Admin: Kunn HaiTen.</div>
       </div>
     </div>
   </div>
@@ -114,7 +114,7 @@ input[type="text"]{background:transparent;border:1px solid rgba(255,255,255,0.06
   <!-- overlay to show generated key (appears when created) -->
   <div id="showKeyOverlay" class="overlay" style="display:none">
     <div class="modal">
-      <h4>Key tạm thời cho phiên này</h4>
+      <h4>Key tạm cho phiên này</h4>
       <div class="codebox" id="generatedKey">AOV-XXXXX</div>
       <div class="tiny">Key sẽ tồn tại <span id="countdownSec">600</span> giây hoặc cho đến khi dùng.</div>
       <div style="text-align:right;margin-top:12px">
@@ -308,4 +308,5 @@ function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(m){ return
 </script>
 </body>
 </html>
+
 
