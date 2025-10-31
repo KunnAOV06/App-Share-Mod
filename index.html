@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Kunn AOV - Mod Store </title>
+<style>
+:root{
+  --bg1:#050505; --bg2:#000000; --neon1:#00ffff; --neon2:#ff00ff; --card:#111; --muted:#9aa;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:Inter, Poppins, system-ui, sans-serif;
+  background: radial-gradient(circle at center, var(--bg1), var(--bg2) 90%);
+  color:#fff;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
+
+/* Header */
+header{padding:20px 18px;text-align:center}
+header h1{margin:0;font-size:22px;color:var(--neon1);text-shadow:0 0 10px rgba(0,255,255,0.12)}
+
+/* Container & grid */
+.container{max-width:1100px;margin:20px auto;padding:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+
+/* Card */
+.card{position:relative;background:var(--card);border-radius:16px;overflow:hidden;
+  box-shadow:0 0 18px rgba(0,255,255,0.06);transition:transform .25s,box-shadow .25s;border:1px solid rgba(255,255,255,0.03)}
+.card:hover{transform:translateY(-6px);box-shadow:0 0 30px rgba(0,255,255,0.12)}
+.card .led-border{position:absolute;inset:0;border-radius:16px;pointer-events:none;
+  box-shadow:0 0 6px rgba(0,255,255,0.08) inset;background:linear-gradient(120deg, rgba(0,255,255,0.03), rgba(255,0,255,0.02))}
+.card img{width:100%;height:150px;object-fit:cover;display:block}
+.card .content{padding:12px}
+.card h3{margin:4px 0;color:var(--neon1);font-size:16px}
+.desc{color:#ccc;font-size:13px;margin:8px 0;min-height:36px}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.size{color:var(--neon2);font-weight:700;font-size:13px}
+.actions{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+
+/* Buttons */
+.btn, .small-btn{
+  background:linear-gradient(90deg,var(--neon1),var(--neon2));color:#000;padding:10px 14px;border-radius:10px;
+  text-decoration:none;font-weight:700;border:none;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.6)
+}
+.small-btn{padding:8px 10px;font-size:14px}
+
+/* Footer */
+footer{text-align:center;color:#7f7f7f;padding:30px 10px;font-size:13px}
+
+/* Overlay / modal (key input) */
+.overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(0deg, rgba(0,0,0,0.65), rgba(0,0,0,0.75));z-index:9999}
+.modal{background:#0b0b0b;border-radius:12px;padding:18px;max-width:480px;width:94%;
+  border:1px solid rgba(0,255,255,0.06)}
+.modal h4{margin:0 0 8px 0;color:var(--neon1)}
+.input-row{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
+input[type="text"]{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px 12px;border-radius:8px;color:#fff;min-width:200px;outline:none}
+.hint{color:var(--muted);font-size:13px;margin-top:8px;text-align:center}
+
+/* small detail overlay used for showKey overlay (reused) */
+.codebox{background:#060606;padding:12px;border-radius:8px;border:1px dashed rgba(0,255,255,0.06);font-family:monospace;color:#bff;word-break:break-all;text-align:center}
+.tiny{font-size:12px;color:#9aa;margin-top:8px;text-align:right}
+
+/* responsive */
+@media (max-width:420px){
+  .card img{height:120px}
+  header h1{font-size:18px}
+}
+</style>
+</head>
+<body>
+  <header>
+    <h1>🚀 Kunn AOV - Mod Store</h1>
+  </header>
+
+  <!-- Main content (hidden until access granted) -->
+  <main id="app" style="display:none">
+    <div class="container">
+      <div class="grid" id="modList">
+        <!-- cards injected here -->
+      </div>
+    </div>
+  </main>
+
+  <footer>© 2025 Kunn AOV | Tự động lấy data từ GitHub</footer>
+
+  <!-- Key entry overlay (shown on load) -->
+  <div id="keyOverlay" class="overlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="keyTitle">
+      <h4 id="keyTitle">Vui lòng nhập Key để truy cập</h4>
+      <div class="hint">Bạn cần một key để truy cập trang. Nhấn "Yêu cầu key" để lấy key tạm thời cho phiên này (one-time), hoặc nhập key nếu bạn đã có.</div>
+
+      <div class="input-row" style="margin-top:12px">
+        <input id="inputKey" type="text" placeholder="Nhập key (vd: AOV-XXXXXX)" />
+        <button id="btnEnter" class="btn">Xác nhận</button>
+      </div>
+
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+        <button id="btnRequest" class="small-btn">Yêu cầu key</button>
+        <button id="btnShowKey" class="small-btn" title="Hiển thị key tạm thời (nếu đã tạo)">Hiện key hiện tại</button>
+        <button id="btnLogout" class="small-btn" style="display:none">Đăng xuất</button>
+      </div>
+
+      <div style="margin-top:12px;text-align:center">
+        <div id="oneTimeInfo" class="hint">Chưa tạo key tạm thời.</div>
+      </div>
+
+      <div style="margin-top:10px;text-align:right">
+        <div class="tiny">Nếu bạn là admin, nhập key admin để vào.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- overlay to show generated key (appears when created) -->
+  <div id="showKeyOverlay" class="overlay" style="display:none">
+    <div class="modal">
+      <h4>Key tạm thời cho phiên này</h4>
+      <div class="codebox" id="generatedKey">AOV-XXXXX</div>
+      <div class="tiny">Key sẽ tồn tại <span id="countdownSec">600</span> giây hoặc cho đến khi dùng.</div>
+      <div style="text-align:right;margin-top:12px">
+        <button id="btnCopy" class="small-btn">Sao chép</button>
+        <button id="btnCloseShow" class="small-btn" style="margin-left:8px">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* CONFIG */
+const ADMIN_KEY = 'KunnHaiTen'; // admin key (ẩn trong UI)
+const DATA_JSON_RAW = 'https://raw.githubusercontent.com/KunnAOV06/A/main/data.json';
+const KEY_TTL_SECONDS = 600; // 10 phút
+
+/* helpers */
+function randomKey(len=8){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s=''; for(let i=0;i<len;i++) s+=chars.charAt(Math.floor(Math.random()*chars.length));
+  return 'AOV-'+s;
+}
+function nowSec(){ return Math.floor(Date.now()/1000); }
+function saveSessionKey(key, ttl){ sessionStorage.setItem('oneTimeKeyObj', JSON.stringify({key, expiresAt: nowSec()+ttl})); }
+function getSessionKeyObj(){ try{ const r=sessionStorage.getItem('oneTimeKeyObj'); return r?JSON.parse(r):null;}catch(e){return null} }
+function clearSessionKey(){ sessionStorage.removeItem('oneTimeKeyObj'); }
+function setAccess(){ sessionStorage.setItem('access_granted','1'); }
+function clearAccess(){ sessionStorage.removeItem('access_granted'); clearSessionKey(); }
+
+/* UI refs */
+const keyOverlay = document.getElementById('keyOverlay');
+const showKeyOverlay = document.getElementById('showKeyOverlay');
+const inputKey = document.getElementById('inputKey');
+const btnEnter = document.getElementById('btnEnter');
+const btnRequest = document.getElementById('btnRequest');
+const btnShowKey = document.getElementById('btnShowKey');
+const btnCopy = document.getElementById('btnCopy');
+const btnCloseShow = document.getElementById('btnCloseShow');
+const oneTimeInfo = document.getElementById('oneTimeInfo');
+const generatedKeyBox = document.getElementById('generatedKey');
+const countdownSec = document.getElementById('countdownSec');
+const appMain = document.getElementById('app');
+const modList = document.getElementById('modList');
+
+let countdownTimer = null;
+
+/* show overlay on load by default */
+window.addEventListener('load', ()=>{
+  // if previously granted in session, skip overlay
+  if(sessionStorage.getItem('access_granted') === '1'){
+    keyOverlay.style.display = 'none';
+    appMain.style.display = 'block';
+    loadMods();
+    return;
+  }
+  // otherwise show overlay (default)
+  keyOverlay.style.display='flex';
+  // update info if there is a session key
+  const obj = getSessionKeyObj();
+  if(obj){
+    oneTimeInfo.textContent = 'Bạn đã có key tạm thời cho phiên này.';
+  } else {
+    oneTimeInfo.textContent = 'Chưa tạo key tạm thời. Nhấn "Yêu cầu key" để tạo.';
+  }
+});
+
+/* request key -> generate & show */
+btnRequest.addEventListener('click', ()=>{
+  const k = randomKey(7);
+  saveSessionKey(k, KEY_TTL_SECONDS);
+  const obj = getSessionKeyObj();
+  if(obj){
+    generatedKeyBox.textContent = obj.key;
+    countdownSec.textContent = Math.max(0, obj.expiresAt - nowSec());
+    showKeyOverlay.style.display='flex';
+    // start countdown
+    if(countdownTimer) clearInterval(countdownTimer);
+    countdownTimer = setInterval(()=>{
+      const o=getSessionKeyObj();
+      if(!o){ countdownSec.textContent='0'; clearInterval(countdownTimer); return; }
+      const rem = Math.max(0, o.expiresAt - nowSec());
+      countdownSec.textContent = rem;
+      if(rem<=0){ clearInterval(countdownTimer); }
+    },1000);
+    oneTimeInfo.textContent = 'Bạn đã tạo key tạm thời cho phiên này.';
+  }
+});
+
+/* show current key overlay (if exists) */
+btnShowKey.addEventListener('click', ()=>{
+  const obj = getSessionKeyObj();
+  if(!obj) return alert('Chưa có key tạm thời. Nhấn "Yêu cầu key" để tạo.');
+  generatedKeyBox.textContent = obj.key;
+  countdownSec.textContent = Math.max(0, obj.expiresAt - nowSec());
+  showKeyOverlay.style.display='flex';
+});
+
+/* copy */
+btnCopy.addEventListener('click', ()=>{
+  const obj = getSessionKeyObj();
+  if(!obj) return alert('Không có key để sao chép!');
+  navigator.clipboard?.writeText(obj.key).then(()=> alert('Đã sao chép key'), ()=> alert('Không thể sao chép'));
+});
+
+/* close show */
+btnCloseShow.addEventListener('click', ()=>{ showKeyOverlay.style.display='none'; if(countdownTimer) clearInterval(countdownTimer); });
+
+/* enter key (confirm) */
+btnEnter.addEventListener('click', tryEnter);
+inputKey.addEventListener('keydown', (e)=>{ if(e.key==='Enter') tryEnter(); });
+
+function tryEnter(){
+  const v = (inputKey.value||'').trim();
+  if(!v) return alert('Nhập key trước đã.');
+  // admin bypass (admin key hidden in UI)
+  if(v === ADMIN_KEY){
+    setAccess(); keyOverlay.style.display='none'; appMain.style.display='block'; loadMods(); return;
+  }
+  // check session key
+  const obj = getSessionKeyObj();
+  if(!obj) return alert('Không có key tạm thời. Nhấn "Yêu cầu key" để tạo.');
+  if(nowSec() > obj.expiresAt){ clearSessionKey(); return alert('Key đã hết hạn. Tạo key mới.'); }
+  if(v === obj.key){
+    setAccess(); clearSessionKey(); keyOverlay.style.display='none'; appMain.style.display='block'; loadMods();
+  } else {
+    alert('Key không đúng. Kiểm tra chính xác chữ hoa/thường.');
+  }
+}
+
+/* load mods from GitHub */
+function loadMods(){
+  modList.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#9aa;padding:18px">Đang tải dữ liệu từ GitHub...</div>';
+  fetch(DATA_JSON_RAW).then(r=>{
+    if(!r.ok) throw new Error('Không lấy được data.json: '+r.status);
+    return r.json();
+  }).then(list => renderMods(list || [])).catch(err=>{
+    modList.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#f66;padding:18px">Lỗi tải data: '+(err.message||err)+'</div>';
+    console.error(err);
+  });
+}
+
+/* render */
+function renderMods(items){
+  if(!Array.isArray(items) || items.length===0){
+    modList.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#9aa;padding:18px">Không có mod nào.</div>';
+    return;
+  }
+  modList.innerHTML = '';
+  items.forEach(mod=>{
+    const card = document.createElement('div'); card.className='card';
+    card.innerHTML = `
+      <div class="led-border"></div>
+      <img src="${mod.img || ''}" onerror="this.style.display='none'">
+      <div class="content">
+        <h3>${escapeHtml(mod.name||'Untitled')}</h3>
+        <div class="desc">${escapeHtml(mod.desc||'')}</div>
+        <div class="meta">
+          <div class="size">${escapeHtml(mod.size||'')}</div>
+          <div class="actions">
+            <a class="btn" href="${mod.file||'#'}" target="_blank" rel="noreferrer noopener">Tải ngay</a>
+            <button class="small-btn" onclick='showDetail(${JSON.stringify(mod).replace(/'/g,"\\'")})'>Xem</button>
+          </div>
+        </div>
+      </div>
+    `;
+    modList.appendChild(card);
+  });
+}
+
+/* show detail popup */
+function showDetail(modJson){
+  let mod = (typeof modJson === 'string') ? JSON.parse(modJson) : modJson;
+  const overlayEl = document.createElement('div'); overlayEl.className='overlay';
+  overlayEl.innerHTML = `
+    <div class="modal">
+      <h4>${escapeHtml(mod.name||'Chi tiết')}</h4>
+      <div style="margin:8px 0"><img src="${mod.img||''}" style="width:100%;border-radius:8px;display:${mod.img?'block':'none'}"></div>
+      <div style="color:#ccc;font-size:14px">${escapeHtml(mod.desc||'')}</div>
+      <div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end">
+        <a class="btn" href="${mod.file||'#'}" target="_blank">Tải về</a>
+        <button class="small-btn" id="closeDetail">Đóng</button>
+      </div>
+    </div>
+  `;
+  overlayEl.addEventListener('click', (e)=>{ if(e.target===overlayEl) overlayEl.remove(); });
+  document.body.appendChild(overlayEl);
+  document.getElementById('closeDetail').addEventListener('click', ()=> overlayEl.remove());
+}
+
+/* helpers for safe text */
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]); }); }
+</script>
+</body>
+</html>
