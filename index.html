@@ -82,7 +82,7 @@ input[type="text"]{background:transparent;border:1px solid rgba(255,255,255,0.06
     </div>
   </main>
 
-  <footer>© 2025 Kunn AOV | Tự động lấy data từ GitHub</footer>
+  <footer>© 2025 Kunn AOV HentaiZ | Web Share Mod Múp Nhất VN</footer>
 
   <!-- Key entry overlay (shown on load) -->
   <div id="keyOverlay" class="overlay">
@@ -97,7 +97,7 @@ input[type="text"]{background:transparent;border:1px solid rgba(255,255,255,0.06
 
       <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
         <button id="btnRequest" class="small-btn">Yêu cầu key</button>
-        <button id="btnShowKey" class="small-btn" title="Hiển thị key tạm thời (nếu đã tạo)">Hiện key hiện tại</button>
+        <button id="btnShowKey" class="small-btn" title="Hiển thị key đã tạo">Hiện key hiện tại</button>
         <button id="btnLogout" class="small-btn" style="display:none">Đăng xuất</button>
       </div>
 
@@ -198,14 +198,14 @@ btnRequest.addEventListener('click', ()=>{
       countdownSec.textContent = rem;
       if(rem<=0){ clearInterval(countdownTimer); }
     },1000);
-    oneTimeInfo.textContent = 'Bạn đã tạo key tạm thời cho phiên này.';
+    oneTimeInfo.textContent = 'Bạn đã tạo key cho phiên này.';
   }
 });
 
 /* show current key overlay (if exists) */
 btnShowKey.addEventListener('click', ()=>{
   const obj = getSessionKeyObj();
-  if(!obj) return alert('Chưa có key tạm thời. Nhấn "Yêu cầu key" để tạo.');
+  if(!obj) return alert('Chưa có key. Nhấn "Yêu cầu key" để tạo.');
   generatedKeyBox.textContent = obj.key;
   countdownSec.textContent = Math.max(0, obj.expiresAt - nowSec());
   showKeyOverlay.style.display='flex';
@@ -234,7 +234,7 @@ function tryEnter(){
   }
   // check session key
   const obj = getSessionKeyObj();
-  if(!obj) return alert('Không có key tạm thời. Nhấn "Yêu cầu key" để tạo.');
+  if(!obj) return alert('Không có key. Nhấn "Yêu cầu key" để tạo.');
   if(nowSec() > obj.expiresAt){ clearSessionKey(); return alert('Key đã hết hạn. Tạo key mới.'); }
   if(v === obj.key){
     setAccess(); clearSessionKey(); keyOverlay.style.display='none'; appMain.style.display='block'; loadMods();
@@ -245,7 +245,7 @@ function tryEnter(){
 
 /* load mods from GitHub */
 function loadMods(){
-  modList.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#9aa;padding:18px">Đang tải dữ liệu từ GitHub...</div>';
+  modList.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#9aa;padding:18px">Đang tải dữ liệu...</div>';
   fetch(DATA_JSON_RAW).then(r=>{
     if(!r.ok) throw new Error('Không lấy được data.json: '+r.status);
     return r.json();
@@ -273,7 +273,7 @@ function renderMods(items){
         <div class="meta">
           <div class="size">${escapeHtml(mod.size||'')}</div>
           <div class="actions">
-            <a class="btn" href="${mod.file||'#'}" target="_blank" rel="noreferrer noopener">Tải ngay</a>
+            <a class="btn" href="${mod.file||'#'}" target="_blank" rel="noreferrer noopener">Nhận</a>
             <button class="small-btn" onclick='showDetail(${JSON.stringify(mod).replace(/'/g,"\\'")})'>Xem</button>
           </div>
         </div>
@@ -293,7 +293,7 @@ function showDetail(modJson){
       <div style="margin:8px 0"><img src="${mod.img||''}" style="width:100%;border-radius:8px;display:${mod.img?'block':'none'}"></div>
       <div style="color:#ccc;font-size:14px">${escapeHtml(mod.desc||'')}</div>
       <div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end">
-        <a class="btn" href="${mod.file||'#'}" target="_blank">Tải về</a>
+        <a class="btn" href="${mod.file||'#'}" target="_blank">Nhận</a>
         <button class="small-btn" id="closeDetail">Đóng</button>
       </div>
     </div>
@@ -308,3 +308,4 @@ function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(m){ return
 </script>
 </body>
 </html>
+
